@@ -29,9 +29,18 @@ function setupAutoUpdater() {
   });
 
   autoUpdater.on('error', (err) => {
+    const rawMsg = err.message || '';
+    if (rawMsg.includes('No published versions on GitHub') || rawMsg.includes('HttpError: 404')) {
+      mainWindow?.webContents.send('updater:status', {
+        status: 'not-available',
+        message: 'No hay versiones publicadas aún en GitHub.',
+      });
+      return;
+    }
+
     mainWindow?.webContents.send('updater:status', {
       status: 'error',
-      message: err.message || 'Error en el actualizador',
+      message: rawMsg || 'Error al conectar con el servidor de actualizaciones',
     });
   });
 
@@ -282,7 +291,11 @@ ipcMain.handle('updater:check', async () => {
     const result = await autoUpdater.checkForUpdates();
     return { status: 'success', updateInfo: result?.updateInfo };
   } catch (err: any) {
-    return { status: 'error', message: err?.message || 'Error al buscar actualizaciones.' };
+    const rawMsg = err?.message || '';
+    if (rawMsg.includes('No published versions on GitHub') || rawMsg.includes('HttpError: 404')) {
+      return { status: 'not-available', message: 'Tienes la versión más reciente (aún no hay versiones publicadas en GitHub).' };
+    }
+    return { status: 'error', message: rawMsg || 'Error al buscar actualizaciones.' };
   }
 });
 

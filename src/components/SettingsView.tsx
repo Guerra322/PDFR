@@ -435,7 +435,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             {updateInfo.status === 'error' && (
               <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 p-3 rounded-xl border border-amber-200/60 dark:border-amber-900/60">
                 <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{updateInfo.message || 'Error al buscar actualizaciones.'}</span>
+                <span>
+                  {updateInfo.message?.includes('No published versions on GitHub')
+                    ? 'Aún no has publicado ningún Release en GitHub. Sube tu primer Release para activar las actualizaciones.'
+                    : updateInfo.message || 'Error al buscar actualizaciones.'}
+                </span>
               </div>
             )}
 
