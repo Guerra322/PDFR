@@ -7,7 +7,7 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/TU_USUARIO_GITHUB/PDFR.git"
+        "url": "https://github.com/Guerra322/PDFR.git"
     },
     "scripts": {
         "dev": "vite",
@@ -55,7 +55,7 @@
         "publish": [
             {
                 "provider": "github",
-                "owner": "TU_USUARIO_GITHUB",
+                "owner": "Guerra322",
                 "repo": "PDFR"
             }
         ],
