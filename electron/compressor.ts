@@ -119,20 +119,20 @@ async function renderAndRepackPdf(
   try {
     onProgress(15, `Renderizando páginas a ${dpi} DPI...`);
 
-    // Render all pages to JPEG via mutool draw
-    const jpegPattern = path.join(tmpDir, 'page_%04d.jpg');
+    // Render all pages to PNG via mutool draw
+    const pngPattern = path.join(tmpDir, 'page_%04d.png');
     await runProcess(mutoolPath, [
       'draw',
-      '-F', 'jpeg',
+      '-F', 'png',
       '-r', String(dpi),
-      '-o', jpegPattern,
+      '-o', pngPattern,
       inputPath,
     ]);
 
     onProgress(55, 'Empaquetando imágenes en PDF...');
 
     const files = (await fs.promises.readdir(tmpDir))
-      .filter(f => /page_\d+\.jpg$/.test(f))
+      .filter(f => /page_\d+\.png$/.test(f))
       .sort()
       .map(f => path.join(tmpDir, f));
 
@@ -151,12 +151,12 @@ async function renderAndRepackPdf(
       const pct = 55 + Math.round(((i + 1) / files.length) * 30);
       onProgress(pct, `Procesando página ${i + 1} de ${files.length}...`);
 
-      const jpegBytes = await fs.promises.readFile(files[i]);
-      const jpegImage = await newPdf.embedJpg(jpegBytes);
+      const pngBytes = await fs.promises.readFile(files[i]);
+      const pngImage = await newPdf.embedPng(pngBytes);
 
       // Preserve original paper size (in PDF points = 1/72 inch)
-      let pageWidth = jpegImage.width * (72 / dpi);
-      let pageHeight = jpegImage.height * (72 / dpi);
+      let pageWidth = pngImage.width * (72 / dpi);
+      let pageHeight = pngImage.height * (72 / dpi);
       if (i < origPageCount) {
         const origPage = originalPdf.getPage(i);
         pageWidth = origPage.getWidth();
@@ -164,7 +164,7 @@ async function renderAndRepackPdf(
       }
 
       const page = newPdf.addPage([pageWidth, pageHeight]);
-      page.drawImage(jpegImage, { x: 0, y: 0, width: pageWidth, height: pageHeight });
+      page.drawImage(pngImage, { x: 0, y: 0, width: pageWidth, height: pageHeight });
     }
 
     onProgress(87, 'Guardando PDF...');
